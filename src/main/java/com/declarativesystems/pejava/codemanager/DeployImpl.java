@@ -53,7 +53,7 @@ import java.util.Map;
  * Support for the Code Manager `deploys` Web Service:
  * /code-manager/v1/deploys
  */
-@Named
+@Named("deploy")
 public class DeployImpl implements Deploy {
     private static Logger log = LoggerFactory.getLogger(DeployImpl.class);
 
