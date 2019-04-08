@@ -69,6 +69,17 @@ public class TestDeploy {
         assertTrue(ret.contains("queued"));
     }
 
+    @Test
+    public void testOkDeploysAllEnvironmentsWhenNotSpecified() throws Exception {
+        String ret = deploy.deployCode(PUPPET_MASTER_FQDN, PUPPET_DEPLOY_OK, null, null);
+        assertTrue(ret.contains("queued"));
+    }
+
+    public void testOkDeploysSpecificEnvironment() throws Exception {
+        String ret = deploy.deployCode(PUPPET_MASTER_FQDN, PUPPET_DEPLOY_OK, null, ENVIRONMENT);
+        assertTrue(ret.contains("queued"));
+    }
+
     @Test(expected=javax.net.ssl.SSLHandshakeException.class)
     public void testWithWrongCaCert() throws Exception {
         String cert = IOUtils.toString(this.getClass().getResourceAsStream("/ca.pem"));

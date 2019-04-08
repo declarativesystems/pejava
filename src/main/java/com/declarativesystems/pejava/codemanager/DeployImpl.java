@@ -58,7 +58,10 @@ public class DeployImpl implements Deploy {
     private static Logger log = LoggerFactory.getLogger(DeployImpl.class);
 
     @Override
-    public String deployCode(String puppetMasterFqdn, String token, String caCert, String[] environment) throws IOException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException, CertificateException
+    public String deployCode(String puppetMasterFqdn,
+                             String token,
+                             String caCert,
+                             String[] environments) throws IOException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException, CertificateException
     {
         /* Example curl request:
         curl -k -X POST -H 'Content-Type: application/json' \
@@ -74,10 +77,14 @@ public class DeployImpl implements Deploy {
         // JSON payload
         Map<String, Object> payloadData = new HashMap<>();
 
-        // deploy all environments if none specified
-        if (environment != null)
+        // deploy selected environments or all environments if none specified
+        if (environments != null && environments.length > 0)
         {
-            payloadData.put("environments", environment);
+            payloadData.put("environments", environments);
+        }
+        else
+        {
+            payloadData.put("deploy-all", true);
         }
 
         // Example of how to wait for Code Manager to tell us if it processed OK or not
