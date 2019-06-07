@@ -13,6 +13,7 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.security.cert.CertificateException;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -75,10 +76,30 @@ public class TestDeploy {
         assertTrue(ret.contains("queued"));
     }
 
+    @Test
     public void testOkDeploysSpecificEnvironment() throws Exception {
         String ret = deploy.deployCode(PUPPET_MASTER_FQDN, PUPPET_DEPLOY_OK, null, ENVIRONMENT);
         assertTrue(ret.contains("queued"));
     }
+
+    @Test
+    public void testOkDeploysAllEnvironmentsWait() throws Exception {
+        String ret = deploy.deployCode(PUPPET_MASTER_FQDN, PUPPET_DEPLOY_OK, null, null, true);
+        assertTrue(ret.contains("complete"));
+    }
+
+    @Test
+    public void testOkDeploysSpecificEnvironmentWait() throws Exception {
+        String ret = deploy.deployCode(PUPPET_MASTER_FQDN, PUPPET_DEPLOY_OK, null, ENVIRONMENT, true);
+        assertTrue(ret.contains("complete"));
+    }
+
+    @Test
+    public void testBadEnvironmentWait() throws Exception {
+        String ret = deploy.deployCode(PUPPET_MASTER_FQDN, PUPPET_DEPLOY_OK, null, new String[] {"bad"}, true);
+        assertTrue(ret.contains("failed"));
+    }
+
 
     @Test(expected=javax.net.ssl.SSLHandshakeException.class)
     public void testWithWrongCaCert() throws Exception {

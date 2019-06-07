@@ -22,7 +22,9 @@ import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
+import java.util.Map;
 
 public interface Deploy {
     String deployCode(String puppetMasterFqdn, String token, String caCert, String[] environment) throws IOException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException, CertificateException;
+    String deployCode(String puppetMasterFqdn, String token, String caCert, String[] environment, boolean wait) throws IOException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException, CertificateException;
 }

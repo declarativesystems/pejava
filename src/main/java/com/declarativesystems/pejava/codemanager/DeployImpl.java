@@ -57,11 +57,49 @@ import java.util.Map;
 public class DeployImpl implements Deploy {
     private static Logger log = LoggerFactory.getLogger(DeployImpl.class);
 
+    // 10 seconds
+    private static final int CONNECT_TIMEOUT = 10 * 1000;
+
+    // 10 minutes
+    private static final int SOCKET_TIMEOUT = 600 * 1000;
+
+    /**
+     * Deploy code without waiting for result (we get back `queued` on success)
+     * but this can fail mid-deploy on the puppet master
+     * @param puppetMasterFqdn FQDN of Puppet Master
+     * @param token contents of RBAC token
+     * @param caCert contents of CA Cert (PEM)
+     * @param environments Environments to deploy. An empty or null list means
+     *                     deploy all environments, otherwise just deploy those
+     *                     named only
+     * @return JSON string from Puppet Enterprise Code Manager REST API
+     */
     @Override
     public String deployCode(String puppetMasterFqdn,
                              String token,
                              String caCert,
-                             String[] environments) throws IOException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException, CertificateException
+                             String[] environments) throws IOException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException, CertificateException {
+        return deployCode(puppetMasterFqdn, token, caCert, environments, false);
+    }
+
+    /**
+     * Deploy puppet code and optionally wait for a result
+     * @param puppetMasterFqdn FQDN of Puppet Master
+     * @param token contents of RBAC token
+     * @param caCert contents of CA Cert (PEM)
+     * @param environments Environments to deploy. An empty or null list means
+     *                     deploy all environments, otherwise just deploy those
+     *                     named only
+     * @param wait Wait for deployment to finish. Required if you want the real
+     *             deployment status message from Puppet.
+     * @return JSON string from Puppet Enterprise Code Manager REST API
+     */
+    @Override
+    public String deployCode(String puppetMasterFqdn,
+                             String token,
+                             String caCert,
+                             String[] environments,
+                             boolean wait) throws IOException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException, CertificateException
     {
         /* Example curl request:
         curl -k -X POST -H 'Content-Type: application/json' \
@@ -87,11 +125,11 @@ public class DeployImpl implements Deploy {
             payloadData.put("deploy-all", true);
         }
 
-        // Example of how to wait for Code Manager to tell us if it processed OK or not
-        // payloadData.put("wait", "true");
-        // we are not going to wait because this can take a long time, instead just check that puppet has queued our
-        // request.  Beyond that, users should be looking at code manager on the puppet master to debug problems, eg
-        // Puppetfile referencing unreachable server
+        if (wait)
+        {
+            payloadData.put("wait", true);
+        }
+
         Gson gson = new GsonBuilder().create();
 
         // build and send the REST request
@@ -130,8 +168,15 @@ public class DeployImpl implements Deploy {
 
     private RequestConfig getRequestConfig()
     {
-        // 10 seconds should be PLENTY to queue a request - beyond this, suspect firewall or broken servers processes...
-        return RequestConfig.custom().setConnectTimeout(10 * 1000).build();
+        // 10 seconds should be PLENTY to CONNECT a request - beyond this, suspect firewall or broken servers
+        RequestConfig.Builder rcb = RequestConfig.custom();
+        rcb.setConnectTimeout(CONNECT_TIMEOUT);
+
+        // The socket timeout is how long to wait for the request to be processed... since puppet
+        // deploys during flight this can take a LONG time (eg slow forge, slow git etc)...
+        rcb.setSocketTimeout(SOCKET_TIMEOUT);
+
+        return rcb.build();
     }
 
     /**

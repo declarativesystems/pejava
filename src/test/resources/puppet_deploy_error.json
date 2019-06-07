@@ -1,0 +1,14 @@
+[
+  {
+    "environment": "nothere",
+    "error": {
+      "details": {
+        "corrected-env-name": "nothere"
+      },
+      "kind": "puppetlabs.code-manager/deploy-failure",
+      "msg": "Errors while deploying environment 'nothere' (exit code: 1):\nERROR\t -> Environment(s) 'nothere' cannot be found in any source and will not be deployed.\n"
+    },
+    "id": 268,
+    "status": "failed"
+  }
+]
