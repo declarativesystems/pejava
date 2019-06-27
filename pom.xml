@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.declarativesystems</groupId>
     <artifactId>pejava</artifactId>
-    <version>1.2.0</version>
+    <version>1.2.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>${project.groupId}:${project.artifactId}</name>
@@ -14,7 +14,7 @@
         <connection>scm:git:git://github.com/declarativesystems/pejava.git</connection>
         <developerConnection>scm:git:ssh://github.com:declarativesystems/pejavagit</developerConnection>
         <url>http://github.com/declarativesystems/pejava/tree/master</url>
-      <tag>pejava-1.2.0</tag>
+      <tag>HEAD</tag>
   </scm>
 
     <licenses>
